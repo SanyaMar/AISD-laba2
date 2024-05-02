@@ -3,10 +3,11 @@
 #include<iostream>
 #include<string>
 #include<random>
-#include <vector>
-
+#include<vector>
 
 namespace funct {
+
+    const std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
     template<typename K, typename T>
     struct Pair {
         K _key;
@@ -21,21 +22,35 @@ namespace funct {
         Node<K, T>* _next;
         Node(const Pair<K, T>& data) : _pair(data), _next(nullptr) {}
         Node() : _pair(Pair<K, T>()), _next(nullptr) {}
-        ~Node() { delete _next; } 
     };
+
     template<typename K, typename T>
     class HashTable {
     private:
         size_t _size;
         std::vector<Node<K, T>*> _data;
 
-        size_t hash(const K& key) const {
+        size_t hash(const K& key) {
             return key % _data.size();
         }
 
-
     public:
         HashTable(size_t size) : _data(size), _size(0) {}
+        HashTable(size_t size, size_t str_length) : _data(size), _size(0){
+            std::random_device rd;
+            std::mt19937 generator(rd());
+            std::uniform_int_distribution<int> charDistribution(0, alphabet.size() - 1);
+
+            for (size_t i = 0; i < _data.size(); ++i) {
+                if (_data[i] == nullptr) {
+                    std::string randomString= "";
+                    for (size_t j = 0; j < str_length; j++) {
+                        randomString += alphabet[charDistribution(generator)];
+                    }
+                    insert(charDistribution(generator), randomString);
+                }
+            }
+        }
 
         ~HashTable() {
             clear();
@@ -91,12 +106,12 @@ namespace funct {
             return *this;
         }
 
-        void print() {
+        void print() const {
             for (size_t i = 0; i < _data.size(); i++) {
                 if (_data[i] != nullptr) {
                     Node<K, T>* ptr = _data[i];
                     while (ptr != nullptr) {
-                        std::cout << "(" << ptr->_pair._key << ", " << ptr->_pair._value << ") ";
+                        std::cout << "(" << ptr->_pair._key << ", '" << ptr->_pair._value << "') ";
                         ptr = ptr->_next;
                     }
                 }
@@ -104,7 +119,7 @@ namespace funct {
             std::cout << std::endl;
         }
 
-        int count(const K& key) {
+        size_t count(K key) const {
             size_t index = hash(key);
             int count = 0;
             Node<K, T>* node = _data[index];
@@ -117,7 +132,7 @@ namespace funct {
             return count;
         }
 
-        bool contains(const K& key) {
+        bool contains(K key) {
             size_t index = hash(key);
             if (!_data[index]) {
                 return false;
@@ -190,4 +205,5 @@ namespace funct {
 			return false;
 		}
 	};
+
 }

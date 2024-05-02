@@ -23,16 +23,11 @@ TEST(HashTableTest, InsertInt) {
 	a.insert(3, 26);
 	a.insert(6, 7);
 	a.print();
+	HashTable<int, int> b(a);
+	b.print();
 }
 
-TEST(HashTableTest, HashTable) {
-	HashTable<int, string> a(10);
-	a.insert(5, "Cat");
-	a.insert(3, "Dog");
-	a.insert(9, "Pig");
-	a.insert(7, "Mice");
-	a.insert(1, "Frog");
-	a.insert(2, "Parrot");
-	a.print();
-	
+TEST(HashTableTest, HashTableRand) {
+	HashTable<int, string> c(10,5);
+	c.print();
 }
