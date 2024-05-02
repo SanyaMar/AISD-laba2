@@ -119,7 +119,7 @@ namespace funct {
             std::cout << std::endl;
         }
 
-        size_t count(K key) const {
+        size_t count(K key)  {
             size_t index = hash(key);
             int count = 0;
             Node<K, T>* node = _data[index];
@@ -166,10 +166,16 @@ namespace funct {
 
         void insert_or_assign(const K& key, const T& value) {
             size_t index = hash(key);
+            Node<K, T>* node = _data[index];
+            while (node!= nullptr && node->_pair._key == key) {
+                    node->_pair._value = value;
+                    return;
+            }
             Node<K, T>* newNode = new Node<K, T>(Pair<K, T>(key, value));
             newNode->_next = _data[index];
             _data[index] = newNode;
             _size++;
+
         }
 
         T* search(const K& key) {
