@@ -13,7 +13,7 @@ TEST(HashTableTest, InsertString) {
 	HashTable<int, string> b(a);
 	a.print();
 	b.print();
-	cout << a.count(6);
+	cout << a.count(6) << endl;
 }
 
 TEST(HashTableTest, InsertInt) {
@@ -25,7 +25,7 @@ TEST(HashTableTest, InsertInt) {
 	a.print();
 	HashTable<int, int> b(a);
 	b.print();
-	cout << a.count(1);
+	cout << a.count(1) << endl;
 }
 
 TEST(HashTableTest, HashTableRand) {
@@ -40,7 +40,7 @@ TEST(HashTableTest, Insert_or_AssignString) {
 	a.insert(9, "pig");
 	a.insert(1, "mice");
 	a.print();
-	a.insert_or_assign(13, "parrot");
+	a.insert_or_assign(2, "parrot");
 	a.print();
 }
 
@@ -50,9 +50,9 @@ TEST(HashTableTest, EraseString) {
 	a.insert(13, "dog");
 	a.insert(4, "pig");
 	a.insert(1, "mice");
-	a.print();
+	a.print() ;
 	a.erase(4);
-	a.print();
+	a.print() ;
 
 }
 TEST(HashTableTest,SearchT) {
@@ -61,5 +61,14 @@ TEST(HashTableTest,SearchT) {
 	a.insert(13, "dog");
 	a.insert(4, "pig");
 	a.insert(1, "mice");
-	cout << *a.search(4);
+	cout << *a.search(4) << endl;
+}
+
+TEST(HashTableTest, Ñomparison) {
+	string s1 = "it always seems impossible until its done";
+	string s2= "it always seems impossible";
+	cout << "Result: " << hash_comparison(s1, s2) << endl;
+	string s3 = "it always seems impossible until its done";
+	string s4 = "it always seems impossible until its done";
+	cout << "Result: " << hash_comparison(s3, s4) << endl;
 }

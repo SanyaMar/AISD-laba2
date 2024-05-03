@@ -148,9 +148,9 @@ namespace funct {
         }
 
         void insert(K key, T value) {
-            if (contains(key)) {
+            /*if (contains(key)) {
                 return;
-            }
+            }*/
             size_t index = hash(key);
 
             if (!_data[index]) {
