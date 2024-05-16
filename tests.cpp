@@ -67,8 +67,8 @@ TEST(HashTableTest,SearchT) {
 TEST(HashTableTest, Ñomparison) {
 	string s1 = "it always seems impossible until its done";
 	string s2= "it always seems impossible";
-	cout << "Result: " << hash_comparison(s1, s2) << endl;
+	cout << "Result: " << hash_comparison<>(s1,s2) << endl;
 	string s3 = "it always seems impossible until its done";
 	string s4 = "it always seems impossible until its done";
-	cout << "Result: " << hash_comparison(s3, s4) << endl;
+	cout << "Result: " << hash_comparison<>(s3, s4) << endl;
 }

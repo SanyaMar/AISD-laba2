@@ -1,13 +1,10 @@
-
 #pragma once
 #include<iostream>
 #include<string>
 #include<random>
 #include<vector>
 
-namespace funct {
-
-    const std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
+namespace funct{
     template<typename K, typename T>
     struct Pair {
         K _key;
@@ -34,25 +31,57 @@ namespace funct {
             return key % _data.size();
         }
 
+        static int alg_pir(std::string S) {
+            int Tc[256] = {
+                 98,  6, 85,150, 36, 23,112,164,135,207,169,  5, 26, 64,165,219,
+                 61, 20, 68, 89,130, 63, 52,102, 24,229,132,245, 80,216,195,115,
+                 90,168,156,203,177,120,  2,190,188,  7,100,185,174,243,162, 10,
+                237, 18,253,225,  8,208,172,244,255,126,101, 79,145,235,228,121,
+                123,251, 67,250,161,  0,107, 97,241,111,181, 82,249, 33, 69, 55,
+                 59,153, 29,  9,213,167, 84, 93, 30, 46, 94, 75,151,114, 73,222,
+                197, 96,210, 45, 16,227,248,202, 51,152,252,125, 81,206,215,186,
+                 39,158,178,187,131,136,  1, 49, 50, 17,141, 91, 47,129, 60, 99,
+                154, 35, 86,171,105, 34, 38,200,147, 58, 77,118,173,246, 76,254,
+                133,232,196,144,198,124, 53,  4,108, 74,223,234,134,230,157,139,
+                189,205,199,128,176, 19,211,236,127,192,231, 70,233, 88,146, 44,
+                183,201, 22, 83, 13,214,116,109,159, 32, 95,226,140,220, 57, 12,
+                221, 31,209,182,143, 92,149,184,148, 62,113, 65, 37, 27,106,166,
+                  3, 14,204, 72, 21, 41, 56, 66, 28,193, 40,217, 25, 54,179,117,
+                238, 87,240,155,180,170,242,212,191,163, 78,218,137,194,175,110,
+                 43,119,224, 71,122,142, 42,160,104, 48,247,103, 15, 11,138,239
+            };
+            int h = 0;
+            for (const int& c : S) {
+                h = Tc[h ^ c];
+            }
+            return h;
+        }
+
+
     public:
-        HashTable(size_t size) : _data(size), _size(0) {}
-        HashTable(size_t size, size_t str_length) : _data(size), _size(0){
+
+        template<typename U = int, typename V = int>
+        friend  bool hash_comparison(const std::string& s1, const std::string& s2);
+
+        HashTable<K, T>(size_t size) : _data(std::vector<Node<K, T>*>(size)), _size(0) {}
+        HashTable<K, T>(size_t size, size_t str_length) : _data(size), _size(0) {
+            const std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
             std::random_device rd;
             std::mt19937 generator(rd());
             std::uniform_int_distribution<int> charDistribution(0, alphabet.size() - 1);
 
             for (size_t i = 0; i < _data.size(); ++i) {
                 if (_data[i] == nullptr) {
-                    std::string randomString= "";
+                    std::string randomString = "";
                     for (size_t j = 0; j < str_length; j++) {
                         randomString += alphabet[charDistribution(generator)];
                     }
-                    insert(charDistribution(generator), randomString);
+                    insert(i, randomString);
                 }
             }
         }
 
-        ~HashTable() {
+        ~HashTable<K, T>() {
             clear();
         }
 
@@ -68,9 +97,10 @@ namespace funct {
                 }
             }
             _data.clear();
+            _size = 0;
         }
 
-        HashTable(const HashTable& other) : _data(other._data.size()), _size(0) {
+        HashTable<K, T>(const HashTable<K, T>& other) : _data(other._data.size()), _size(0) {
             for (size_t i = 0; i < other._data.size(); ++i) {
                 if (other._data[i]) {
                     Node<K, T>* current = other._data[i];
@@ -82,23 +112,15 @@ namespace funct {
             }
         }
 
-        HashTable& operator=(const HashTable& other) {
+        HashTable<K, T>& operator=(const HashTable<K, T>& other) {
             if (this != &other) {
                 clear();
                 _size = other._size;
                 _data.resize(other._data.size(), nullptr);
                 for (size_t i = 0; i < other._data.size(); ++i) {
                     Node<K, T>* current = other._data[i];
-                    Node<K, T>* prev = nullptr;
                     while (current != nullptr) {
-                        Node<K, T>* newNode = new Node<K, T>(current->_pair);
-                        if (prev == nullptr) {
-                            _data[i] = newNode;
-                        }
-                        else {
-                            prev->_next = newNode;
-                        }
-                        prev = newNode;
+                        insert(current->_pair._key, current->_pair._value);
                         current = current->_next;
                     }
                 }
@@ -118,8 +140,7 @@ namespace funct {
             }
             std::cout << std::endl;
         }
-
-        size_t count(K key)  {
+        size_t count(K key) {
             size_t index = hash(key);
             int count = 0;
             Node<K, T>* node = _data[index];
@@ -138,7 +159,7 @@ namespace funct {
                 return false;
             }
             Node<K, T>* ptr = _data[index];
-            while (ptr) {
+            while (ptr != nullptr) {
                 if (ptr->_pair._key == key) {
                     return true;
                 }
@@ -148,12 +169,12 @@ namespace funct {
         }
 
         void insert(K key, T value) {
-            /*if (contains(key)) {
-                return;
-            }*/
             size_t index = hash(key);
+            if (contains(key)) {
+                return;
+            }
 
-            if (!_data[index]) {
+            if (_data[index] == nullptr) {
                 _data[index] = new Node<K, T>(Pair<K, T>(key, value));
             }
             else {
@@ -167,9 +188,9 @@ namespace funct {
         void insert_or_assign(const K& key, const T& value) {
             size_t index = hash(key);
             Node<K, T>* node = _data[index];
-            while (node!= nullptr && node->_pair._key == key) {
-                    node->_pair._value = value;
-                    return;
+            while (node != nullptr && node->_pair._key == key) {
+                node->_pair._value = value;
+                return;
             }
             Node<K, T>* newNode = new Node<K, T>(Pair<K, T>(key, value));
             newNode->_next = _data[index];
@@ -189,29 +210,29 @@ namespace funct {
             }
             return nullptr;
         }
-
-		bool erase(const K& key) {
+        bool erase(const K& key) {
             size_t index = hash(key);
             Node<K, T>* prev = nullptr;
             Node<K, T>* current = _data[index];
-			while (current != nullptr && current->_pair._key != key) {
-				prev = current;
-				current = current->_next;
-			}
-			if (current != nullptr) {
-				if (prev == nullptr) {
-					_data[index] = current->_next;
-				}
-				else {
-					prev->_next = current->_next;
-				}
-				delete current;
-				return true;
-			}
-			return false;
-		}
-	};
-    static const char T[256] = {
+            while (current != nullptr && current->_pair._key != key) {
+                prev = current;
+                current = current->_next;
+            }
+            if (current != nullptr) {
+                if (prev == nullptr) {
+                    _data[index] = current->_next;
+                }
+                else {
+                    prev->_next = current->_next;
+                }
+                delete current;
+                _size--;
+                return true;
+            }
+            return false;
+        }
+    };
+   /* static const char Tc[256] = {
                  98,  6, 85,150, 36, 23,112,164,135,207,169,  5, 26, 64,165,219,
                  61, 20, 68, 89,130, 63, 52,102, 24,229,132,245, 80,216,195,115,
                  90,168,156,203,177,120,  2,190,188,  7,100,185,174,243,162, 10,
@@ -228,18 +249,27 @@ namespace funct {
                   3, 14,204, 72, 21, 41, 56, 66, 28,193, 40,217, 25, 54,179,117,
                 238, 87,240,155,180,170,242,212,191,163, 78,218,137,194,175,110,
                  43,119,224, 71,122,142, 42,160,104, 48,247,103, 15, 11,138,239
-    };
-    int alg_pir(std::string S) {
-        char h = 0;
-        for (const char& c : S) {
-            h = T[h ^ c];
+    };*/
+       
+        /*static int alg_pir(std::string S) {
+            char h = 0;
+            for (const char& c : S) {
+                h = T[h ^ c];
+            }
+            return h;
         }
-        return h;
-    }
+        bool hash_comparison(const std::string& s1, const std::string& s2) {
+            if (alg_pir(s1)==alg_pir(s2)) {
+                return true;
+            }
+            return false;
+        }*/
+    template<typename U = int, typename V = int>
     bool hash_comparison(const std::string& s1, const std::string& s2) {
-        if (alg_pir(s1) == alg_pir(s2)) {
+        if (HashTable<U, V>::alg_pir(s1) == HashTable<U, V>::alg_pir(s2)) {
             return true;
         }
         return false;
     }
+
 }
